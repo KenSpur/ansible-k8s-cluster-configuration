@@ -1,0 +1,27 @@
+- name: Stage 2 - Initialize Worker Nodes
+  hosts: worker-nodes
+  gather_facts: yes
+  become: true
+  serial: 1
+
+  tasks:
+  - name: Read join command from temporary file
+    slurp:
+      src: "/tmp/kubeadm_join_command"
+    register: kubeadm_join_command_slurp
+    delegate_to: "c0-cp-0"
+
+  - name: Set join command fact for worker nodes
+    set_fact:
+      kubeadm_join_command: "{{ kubeadm_join_command_slurp.content | b64decode }}"
+
+  - name: Check if the worker node has joined the cluster
+    stat:
+      path: /etc/kubernetes/kubelet.conf
+    register: kubelet_conf
+
+  - name: Join the Kubernetes cluster
+    shell:
+      cmd: "{{ kubeadm_join_command }}"
+    when: not kubelet_conf.stat.exists
+    no_log: true  # Avoid logging sensitive information

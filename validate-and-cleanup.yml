@@ -1,0 +1,33 @@
+- name: Stage 3 - Validate Workers and Cleanup
+  hosts: control-plane
+  gather_facts: no
+  become: true
+
+  tasks:
+    - name: Wait for all worker nodes to become Ready
+      k8s_info:
+        kind: Node
+      register: k8s_nodes_result
+      until: >
+        k8s_nodes_result.resources | selectattr('metadata.name', 'in', groups['worker-nodes']) | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Ready') | selectattr('status', 'equalto', 'True') | list | length == groups['worker-nodes'] | length
+      retries: 30
+      delay: 10
+      changed_when: false
+
+    - name: Label worker nodes
+      k8s:
+        definition:
+          apiVersion: v1
+          kind: Node
+          metadata:
+            name: "{{ item }}"
+            labels:
+              node-role.kubernetes.io/worker: ""
+      loop: "{{ groups['worker-nodes'] }}"
+      register: label_result
+      changed_when: label_result is changed
+
+    - name: Remove the temporary kubeadm join command file
+      file:
+        path: /tmp/kubeadm_join_command
+        state: absent
