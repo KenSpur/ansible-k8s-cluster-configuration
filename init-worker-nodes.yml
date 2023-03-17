@@ -1,5 +1,5 @@
 - name: Stage 2 - Initialize Worker Nodes
-  hosts: worker-nodes
+  hosts: worker_nodes
   gather_facts: no
   become: true
 
@@ -8,7 +8,7 @@
     slurp:
       src: "/tmp/kubeadm_join_command"
     register: kubeadm_join_command_slurp
-    delegate_to: "{{ groups['control-plane'][0] }}"
+    delegate_to: "{{ groups['control_plane'][0] }}"
 
   - name: Set join command fact for worker nodes
     set_fact:

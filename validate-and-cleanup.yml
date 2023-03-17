@@ -1,5 +1,5 @@
 - name: Stage 3 - Validate Workers and Cleanup
-  hosts: control-plane
+  hosts: control_plane
   gather_facts: no
   become: true
 
@@ -9,7 +9,7 @@
         kind: Node
       register: k8s_nodes_result
       until: >
-        k8s_nodes_result.resources | selectattr('metadata.name', 'in', groups['worker-nodes']) | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Ready') | selectattr('status', 'equalto', 'True') | list | length == groups['worker-nodes'] | length
+        k8s_nodes_result.resources | selectattr('metadata.name', 'in', groups['worker_nodes']) | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Ready') | selectattr('status', 'equalto', 'True') | list | length == groups['worker_nodes'] | length
       retries: 30
       delay: 10
       changed_when: false
@@ -23,7 +23,7 @@
             name: "{{ item }}"
             labels:
               node-role.kubernetes.io/worker: ""
-      loop: "{{ groups['worker-nodes'] }}"
+      loop: "{{ groups['worker_nodes'] }}"
       register: label_result
       changed_when: label_result is changed
 

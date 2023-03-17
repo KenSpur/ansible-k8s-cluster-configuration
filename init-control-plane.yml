@@ -1,5 +1,5 @@
 - name: Stage 1 - Initialize Control Plane
-  hosts: control-plane
+  hosts: control_plane
   gather_facts: yes
   become: true
   vars:
