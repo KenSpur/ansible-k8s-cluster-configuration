@@ -2,14 +2,13 @@
   hosts: worker-nodes
   gather_facts: no
   become: true
-  serial: 1
 
   tasks:
   - name: Read join command from temporary file
     slurp:
       src: "/tmp/kubeadm_join_command"
     register: kubeadm_join_command_slurp
-    delegate_to: "c0-cp-0"
+    delegate_to: "{{ groups['control-plane'][0] }}"
 
   - name: Set join command fact for worker nodes
     set_fact:
