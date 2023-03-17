@@ -8,8 +8,11 @@
       k8s_info:
         kind: Node
       register: k8s_nodes_result
-      until: >
-        k8s_nodes_result.resources | selectattr('metadata.name', 'in', groups['worker_nodes']) | map(attribute='status.conditions') | flatten | selectattr('type', 'equalto', 'Ready') | selectattr('status', 'equalto', 'True') | list | length == groups['worker_nodes'] | length
+      until: >-
+        k8s_nodes_result.resources | selectattr('metadata.name', 'in', groups['worker_nodes']) | 
+        map(attribute='status.conditions') | flatten | 
+        selectattr('type', 'equalto', 'Ready') | selectattr('status', 'equalto', 'True') | 
+        list | length == groups['worker_nodes'] | length
       retries: 30
       delay: 10
       changed_when: false
