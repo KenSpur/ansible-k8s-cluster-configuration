@@ -3,6 +3,7 @@
   gather_facts: yes
   become: true
   vars:
+    service_cidr: "{{ service_cidr }}"
     pod_network_cidr: "{{ pod_network_cidr }}"
 
   tasks:
@@ -15,6 +16,7 @@
     shell:
       cmd: |
         kubeadm init \
+          --service-cidr="{{ service_cidr }}" \
           --pod-network-cidr="{{ pod_network_cidr }}"
     when: not kubernetes_admin_conf.stat.exists
 
